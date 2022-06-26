@@ -1,13 +1,9 @@
-// react
 import React, { useState, useEffect, useRef } from 'react'
-
-// openlayers
 import Map from 'ol/Map'
 import View from 'ol/View'
 import TileLayer from 'ol/layer/Tile'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { fromLonLat, get } from 'ol/proj'
 import XYZ from 'ol/source/XYZ'
 import { transform } from 'ol/proj'
 import GeoJSON from 'ol/format/GeoJSON'
@@ -20,15 +16,10 @@ function MapWrapper(props) {
   const [fitPlane, setFitPlane] = useState(true)
   const [planesLayer, setPlanesLayer] = useState()
 
-  // pull refs
   const mapElement = useRef()
-
-  // create state ref that can be accessed in OpenLayers onclick callback function
-  //  https://stackoverflow.com/a/60643670
   const mapRef = useRef()
   mapRef.current = map
 
-  // initialize map on first render - logic formerly put into componentDidMount
   useEffect(() => {
     const initialMap = new Map({
       target: mapElement.current,
@@ -48,16 +39,11 @@ function MapWrapper(props) {
       }),
       controls: [],
     })
-
-    // set map onclick handler
     initialMap.on('pointermove', handleMapClick)
 
     fetch('/entities.json')
       .then((response) => response.json())
       .then((fetchedFeatures) => {
-        // parse fetched geojson into OpenLayers features
-        //  use options to convert feature from EPSG:4326 to EPSG:3857
-
         const wktOptions = {
           dataProjection: 'EPSG:4326',
           featureProjection: 'EPSG:3857',
@@ -94,7 +80,7 @@ function MapWrapper(props) {
     if (props.features.length) {
       featuresLayer.setSource(
         new VectorSource({
-          features: props.features, // make sure features is an array
+          features: props.features,
         }),
       )
 
@@ -104,50 +90,19 @@ function MapWrapper(props) {
     }
 
     if (props.planes.length) {
-      // console.log(props.planes)
       planesLayer.setSource(
         new VectorSource({
-          features: props.planes, // make sure features is an array
+          features: props.planes,
         }),
       )
     }
   }, [props.features, props.planes])
-  // return/render logic eliminated for brevity
-
-  // update map if features prop changes - logic formerly put into componentDidUpdate
-  // useEffect(() => {
-  //   if (props.features.length) {
-  //     // may be null on first render
-  //     // set features to map
-  //     featuresLayer.setSource(
-  //       new VectorSource({
-  //         features: props.features, // make sure features is an array
-  //       }),
-  //     )
-  //   }
-  // }, [props.features, featuresLayer])
-
-  // map click handler
   const handleMapClick = (event) => {
-    // get clicked coordinate using mapRef to access current React state inside OpenLayers callback
-    //  https://stackoverflow.com/a/60643670
     const clickedCoord = mapRef.current.getCoordinateFromPixel(event.pixel)
-
-    // transform coord to EPSG 4326 standard Lat Long
     const transormedCoord = transform(clickedCoord, 'EPSG:3857', 'EPSG:4326')
-
-    // set React state
     setSelectedCoord(transormedCoord)
   }
 
-  const handleClick = (event) => {
-    // 👇️ refers to the image element
-    console.log(event.target)
-
-    console.log('Image clicked')
-  }
-
-  // render component
   return (
     <div>
       <div ref={mapElement} className="map-container"></div>

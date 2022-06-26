@@ -19,8 +19,6 @@ function App() {
   const reference2 = useRef()
   reference2.current = features
 
-  // initialization - retrieve GeoJSON features from Mock JSON API get features from mock
-  //  GeoJson API (read from flat .json file in public directory)
   useEffect(() => {
     const getIconFeature = () => {
       const iconFeature = new Feature({
@@ -31,38 +29,6 @@ function App() {
 
       iconFeature.setStyle(getSelfIconStyle(0))
       return iconFeature
-    }
-
-    const getPlanes = async () => {
-      while (true) {
-        fetch('https://globus-hackathon-opensky.herokuapp.com/OpenSky')
-          .then((r) => r.json())
-          .then((planesLst) => {
-            let pp = []
-            planesLst
-              .filter(
-                (p) =>
-                  p.longitude > 30 &&
-                  p.longitude < 40 &&
-                  p.latitude > 30 &&
-                  p.latitude < 36,
-              )
-              .forEach((plane) => {
-                let iconFeature = new Feature({
-                  geometry: new Point(
-                    proj.fromLonLat([plane.longitude, plane.latitude]),
-                  ),
-                  name: plane.callSign,
-                })
-
-                iconFeature.setStyle(getSelfIconStyle(plane.trueTrack))
-                pp.push(iconFeature)
-              })
-
-            setPlanes(pp)
-          })
-        await sleep(2000).then((v) => {})
-      }
     }
 
     const movePlane = async () => {
@@ -80,7 +46,6 @@ function App() {
     setPlanes([])
 
     movePlane()
-    // getPlanes()
   }, [])
 
   const getSelfIconStyle = (rot) => {
