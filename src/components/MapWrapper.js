@@ -44,7 +44,6 @@ function MapWrapper(props) {
       ],
       view: new View({
         projection: 'EPSG:3857',
-        center: fromLonLat([34.82141, 32.08374]),
         zoom: 10,
       }),
       controls: [],
@@ -82,6 +81,7 @@ function MapWrapper(props) {
     })
 
     initialMap.on('pointerdrag', () => setFitPlane(false))
+    initialMap.getView().on('change:resolution', () => setFitPlane(false))
 
     initialMap.addLayer(vectorLayer)
     initialMap.addLayer(planesVectorLayer)
@@ -155,7 +155,7 @@ function MapWrapper(props) {
         <p>{selectedCoord ? toStringXY(selectedCoord, 5) : ''}</p>
       </div>
       <img
-        style={centerIconStyle}
+        style={centerIconStyle(fitPlane ? 0.1 : 1)}
         src={require('../assets/center.ico')}
         onClick={() => setFitPlane(true)}
       />
@@ -163,11 +163,15 @@ function MapWrapper(props) {
   )
 }
 
-var centerIconStyle = {
-  width: '50px',
-  position: 'absolute',
-  bottom: 3,
-  left: 3,
+const centerIconStyle = (opa) => {
+  let style = {
+    width: '50px',
+    position: 'absolute',
+    bottom: 3,
+    left: 3,
+    opacity: opa
+  }
+  return style
 }
 
 export default MapWrapper

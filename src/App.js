@@ -39,35 +39,6 @@ function App() {
           .then((r) => r.json())
           .then((planesLst) => {
             let pp = []
-            let ppp = [
-              {
-                id: 1,
-                callSign: 'SWR32R  ',
-                longitude: 34.82141,
-                latitude: 32.08379,
-                altitude: 11574.78,
-                trueTrack: 283.03,
-                verticalRate: 0,
-              },
-              {
-                id: 2,
-                callSign: 'DMS1    ',
-                longitude: 34.82141,
-                latitude: 32.08379,
-                altitude: 3048,
-                trueTrack: 243.26,
-                verticalRate: 0,
-              },
-              {
-                id: 3,
-                callSign: 'MLN235  ',
-                longitude: 34.83141,
-                latitude: 32.09379,
-                altitude: 6812.28,
-                trueTrack: 178.74,
-                verticalRate: -17.56,
-              },
-            ]
             planesLst
               .filter(
                 (p) =>
@@ -96,7 +67,10 @@ function App() {
 
     const movePlane = async () => {
       while (true) {
-        setPosition((reference) => [reference[0], reference[1] + 0.00001])
+        await fetch('https://localhost:5001/SelfPosition')
+          .then((r) => r.json())  
+          .then((j) => setPosition([j.position.lontitude, j.position.latitude]))
+          .catch(e => console.log(e))
         setFeatures([getIconFeature()])
         await sleep(33).then((v) => {})
       }
